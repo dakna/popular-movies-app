@@ -75,6 +75,9 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
             ratingBar = view.findViewById(R.id.ratingBar);
             ratingValue = view.findViewById(R.id.ratingValue);
             ratingBar.setStepSize((float) 0.1);
+            itemView.setOnClickListener(MoviesAdapterViewHolder.this);
+
+
         }
 
         @Override

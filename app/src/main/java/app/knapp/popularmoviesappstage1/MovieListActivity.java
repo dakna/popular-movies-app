@@ -1,5 +1,6 @@
 package app.knapp.popularmoviesappstage1;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -105,7 +106,12 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
     @Override
     public void onMovieSelected(Movie movie) {
+        Log.d(TAG, "onMovieSelected: ");
         // create Intent with parcelable movie object and start it
+        Intent detailsIntent = new Intent(this, MovieDetailActivity.class);
+        detailsIntent.putExtra("movie", movie);
+        startActivity(detailsIntent);
+
     }
 
     private int getGridSize() {

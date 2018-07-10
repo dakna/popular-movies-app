@@ -1,8 +1,11 @@
 package app.knapp.popularmoviesappstage1.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class Movie {
+public class Movie implements Parcelable{
 
     @SerializedName("original_title")
     private String originalTitle;
@@ -66,4 +69,40 @@ public class Movie {
     public void setBackdropPath(String backdropPath) {
         this.backdropPath = backdropPath;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.originalTitle);
+        dest.writeDouble(this.voteAverage);
+        dest.writeString(this.overView);
+        dest.writeString(this.releaseDate);
+        dest.writeString(this.posterPath);
+        dest.writeString(this.backdropPath);
+    }
+
+    protected Movie(Parcel in) {
+        this.originalTitle = in.readString();
+        this.voteAverage = in.readDouble();
+        this.overView = in.readString();
+        this.releaseDate = in.readString();
+        this.posterPath = in.readString();
+        this.backdropPath = in.readString();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 }
