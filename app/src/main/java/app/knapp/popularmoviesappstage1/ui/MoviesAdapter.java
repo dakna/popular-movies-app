@@ -48,7 +48,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     @Override
     public void onBindViewHolder(@NonNull MoviesAdapterViewHolder holder, int position) {
         Movie movie = movies.get(position);
-        Log.d(TAG, "onBindViewHolder: movie " + movie.getOriginalTitle() + " at position " + position);
+        Log.d(TAG, "onBindViewHolder: movie " + movie.getTitle() + " at position " + position);
         Picasso.get()
                 .load(MovieDbUtil.BASE_URL_IMAGE + MovieDbUtil.POSTER_SIZE + movie.getPosterPath())
                 .into(holder.posterImage);
@@ -83,7 +83,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
         @Override
         public void onClick(View view) {
             Movie movie = movies.get(getAdapterPosition());
-            Log.d(TAG, "onClick: movie title " + movie.getOriginalTitle());
+            Log.d(TAG, "onClick: movie title " + movie.getTitle());
             movieSelectedListener.onMovieSelected(movie);
 
         }

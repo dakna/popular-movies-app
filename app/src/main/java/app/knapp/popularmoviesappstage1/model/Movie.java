@@ -7,20 +7,37 @@ import com.google.gson.annotations.SerializedName;
 
 public class Movie implements Parcelable{
 
+    @SerializedName("title")
+    private String title;
+
+
     @SerializedName("original_title")
     private String originalTitle;
+
     @SerializedName("vote_average")
     private double voteAverage;
+
     @SerializedName("overview")
     private String overView;
+
     @SerializedName("release_date")
     private String releaseDate;
+
     @SerializedName("poster_path")
     private String posterPath;
+
     @SerializedName("backdrop_path")
     private String backdropPath;
 
     public Movie() {}
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getOriginalTitle() {
         return originalTitle;
@@ -77,6 +94,7 @@ public class Movie implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.title);
         dest.writeString(this.originalTitle);
         dest.writeDouble(this.voteAverage);
         dest.writeString(this.overView);
@@ -86,6 +104,7 @@ public class Movie implements Parcelable{
     }
 
     protected Movie(Parcel in) {
+        this.title = in.readString();
         this.originalTitle = in.readString();
         this.voteAverage = in.readDouble();
         this.overView = in.readString();

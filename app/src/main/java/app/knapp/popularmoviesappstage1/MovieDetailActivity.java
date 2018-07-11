@@ -32,7 +32,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
 
         movie = getIntent().getParcelableExtra("movie");
-        Log.d(TAG, "onCreate: movie " + movie.getOriginalTitle());
+        Log.d(TAG, "onCreate: movie " + movie.getTitle());
 
         ivHeader = findViewById(R.id.ivHeader);
         ivPoster = findViewById(R.id.ivPoster);
@@ -65,7 +65,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             tvRelease.setText("n/a");
         }
 
-        tvTitle.setText(movie.getOriginalTitle());
+        tvTitle.setText(movie.getTitle());
         tvStory.setText(movie.getOverView());
     }
 }
