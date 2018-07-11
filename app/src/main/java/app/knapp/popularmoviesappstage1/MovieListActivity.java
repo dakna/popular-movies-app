@@ -86,13 +86,15 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String item = parent.getItemAtPosition(position).toString();
         Log.d(TAG, "onItemSelected: item " + item);
+
         if (item == getResources().getString(R.string.spinner_select_popular)) {
 
-            Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.POPULAR);
+
         } else if ((item == getResources().getString(R.string.spinner_select_toprated))) {
 
-            Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.TOP_RATED);
         }
 
