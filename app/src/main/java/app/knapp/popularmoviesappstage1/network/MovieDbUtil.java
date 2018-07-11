@@ -9,7 +9,7 @@ public class MovieDbUtil {
     public static final String BASE_URL = "https://api.themoviedb.org/3/";
     public static final String BASE_URL_IMAGE = "https://image.tmdb.org/t/p/";
     public static final String POSTER_SIZE = "w342";
-    public static final String BACKDROP_SIZE = "w780";
+    public static final String BACKDROP_SIZE = "w1280";
 
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager =
