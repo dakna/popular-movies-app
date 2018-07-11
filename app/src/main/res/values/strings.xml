@@ -6,4 +6,5 @@
     <string name="spinner_select_popular">Most popular</string>
     <string name="spinner_select_toprated">Highest rated</string>
     <string name="label_story">Story</string>
+    <string name="change_selection">Change selection</string>
 </resources>
