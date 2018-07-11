@@ -124,7 +124,7 @@
                 android:id="@+id/tvStoryLabel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Story"
+                android:text="@string/label_story"
                 app:layout_constraintTop_toBottomOf="@id/ivPoster"
                 app:layout_constraintStart_toEndOf="@id/guideline"
                 app:layout_constraintEnd_toStartOf="@id/guideline2"
