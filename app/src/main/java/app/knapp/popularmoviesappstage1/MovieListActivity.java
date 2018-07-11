@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -39,11 +40,15 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     private List<Movie> movies;
     private MoviesAdapter moviesAdapter;
     private RecyclerView rvMovies;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
+
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.GONE);
 
         rvMovies = findViewById(R.id.rvMovieList);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, getGridSize());
@@ -116,10 +121,14 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         movieDbService = retrofit.create(MovieDbService.class);
         Call<MovieDbResponse> call = movieDbService.getMovies(list,BuildConfig.API_KEY);
 
+        progressBar.setVisibility(View.VISIBLE);
+
         call.enqueue(new Callback<MovieDbResponse>() {
             @Override
             public void onResponse(Call<MovieDbResponse> call, Response<MovieDbResponse> response) {
-                
+
+                progressBar.setVisibility(View.GONE);
+
                 if (response.isSuccessful()) {
                     Log.d(TAG, "onResponse: success " + response.body());
                     movies = response.body().getResults();
@@ -143,6 +152,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
             @Override
             public void onFailure(Call<MovieDbResponse> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
                 Log.e(TAG, "onFailure: ", t);
                 Toast.makeText(MovieListActivity.this, "Error loading movie list: " + t.getMessage(), Toast.LENGTH_SHORT).show();
 
