@@ -2,7 +2,6 @@ package app.knapp.popularmoviesappstage1;
 
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -68,11 +67,11 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         MenuItem item = menu.findItem(R.id.spinner);
 
         Spinner spinner = (Spinner) item.getActionView();
-        List<String> dropDownOptions = new ArrayList<String>();
+        List<String> dropDownOptions = new ArrayList<>();
         dropDownOptions.add(getResources().getString(R.string.spinner_select_popular));
         dropDownOptions.add(getResources().getString(R.string.spinner_select_toprated));
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, dropDownOptions);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dropDownOptions);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner.setAdapter(spinnerAdapter);
@@ -87,12 +86,12 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         String item = parent.getItemAtPosition(position).toString();
         Log.d(TAG, "onItemSelected: item " + item);
 
-        if (item == getResources().getString(R.string.spinner_select_popular)) {
+        if (item.equals(getResources().getString(R.string.spinner_select_popular))) {
 
             //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.POPULAR);
 
-        } else if ((item == getResources().getString(R.string.spinner_select_toprated))) {
+        } else if ((item.equals(getResources().getString(R.string.spinner_select_toprated)))) {
 
             //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.TOP_RATED);
