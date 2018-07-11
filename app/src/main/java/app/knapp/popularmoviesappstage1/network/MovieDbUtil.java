@@ -11,6 +11,9 @@ public class MovieDbUtil {
     public static final String POSTER_SIZE = "w342";
     public static final String BACKDROP_SIZE = "w1280";
 
+    public static final String POPULAR = "popular";
+    public static final String TOP_RATED = "top_rated";
+
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
