@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import app.knapp.popularmoviesappstage1.model.Movie;
-import app.knapp.popularmoviesappstage1.network.MovieDbResponse;
+import app.knapp.popularmoviesappstage1.network.MovieListDbResponse;
 import app.knapp.popularmoviesappstage1.network.MovieDbService;
 import app.knapp.popularmoviesappstage1.network.MovieDbUtil;
 import app.knapp.popularmoviesappstage1.ui.MoviesAdapter;
@@ -119,13 +119,13 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
                 .build();
 
         movieDbService = retrofit.create(MovieDbService.class);
-        Call<MovieDbResponse> call = movieDbService.getMovies(list,BuildConfig.API_KEY);
+        Call<MovieListDbResponse> call = movieDbService.getMovies(list,BuildConfig.API_KEY);
 
         progressBar.setVisibility(View.VISIBLE);
 
-        call.enqueue(new Callback<MovieDbResponse>() {
+        call.enqueue(new Callback<MovieListDbResponse>() {
             @Override
-            public void onResponse(Call<MovieDbResponse> call, Response<MovieDbResponse> response) {
+            public void onResponse(Call<MovieListDbResponse> call, Response<MovieListDbResponse> response) {
 
                 progressBar.setVisibility(View.GONE);
 
@@ -151,7 +151,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
             }
 
             @Override
-            public void onFailure(Call<MovieDbResponse> call, Throwable t) {
+            public void onFailure(Call<MovieListDbResponse> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 Log.e(TAG, "onFailure: ", t);
                 Toast.makeText(MovieListActivity.this, "Error loading movie list: " + t.getMessage(), Toast.LENGTH_SHORT).show();

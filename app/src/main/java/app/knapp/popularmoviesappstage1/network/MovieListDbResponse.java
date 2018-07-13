@@ -6,7 +6,7 @@ import java.util.List;
 
 import app.knapp.popularmoviesappstage1.model.Movie;
 
-public class MovieDbResponse {
+public class MovieListDbResponse {
 
     @SerializedName("page")
     private int page;
