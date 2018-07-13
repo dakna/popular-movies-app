@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Movies Stage 1</string>
+    <string name="app_name">Movies</string>
     <string name="movie_poster_description">Movie Poster</string>
     <string name="header_description">Movie Header Picture</string>
     <string name="poster_description">Movie Poster Image</string>

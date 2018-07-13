@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1;
+package app.knapp.popularmoviesapp;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

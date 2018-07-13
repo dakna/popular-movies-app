@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1.network;
+package app.knapp.popularmoviesapp.network;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

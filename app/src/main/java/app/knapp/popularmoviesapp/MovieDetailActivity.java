@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1;
+package app.knapp.popularmoviesapp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,13 +16,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import app.knapp.popularmoviesappstage1.model.Movie;
-import app.knapp.popularmoviesappstage1.model.MovieVideo;
-import app.knapp.popularmoviesappstage1.network.MovieDbService;
-import app.knapp.popularmoviesappstage1.network.MovieDbUtil;
-import app.knapp.popularmoviesappstage1.network.MovieListDbResponse;
-import app.knapp.popularmoviesappstage1.network.MovieVideosDbResponse;
-import app.knapp.popularmoviesappstage1.ui.MoviesAdapter;
+import app.knapp.popularmoviesapp.model.Movie;
+import app.knapp.popularmoviesapp.model.MovieVideo;
+import app.knapp.popularmoviesapp.network.MovieDbService;
+import app.knapp.popularmoviesapp.network.MovieDbUtil;
+import app.knapp.popularmoviesapp.network.MovieVideosDbResponse;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;

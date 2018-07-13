@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1;
+package app.knapp.popularmoviesapp;
 
 import org.junit.Test;
 

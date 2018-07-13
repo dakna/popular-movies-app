@@ -1,10 +1,10 @@
-package app.knapp.popularmoviesappstage1.network;
+package app.knapp.popularmoviesapp.network;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-import app.knapp.popularmoviesappstage1.model.MovieReview;
+import app.knapp.popularmoviesapp.model.MovieReview;
 
 public class MovieReviewsDbResponse {
 

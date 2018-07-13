@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1.network;
+package app.knapp.popularmoviesapp.network;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1.ui;
+package app.knapp.popularmoviesapp.ui;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -14,9 +14,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import app.knapp.popularmoviesappstage1.R;
-import app.knapp.popularmoviesappstage1.model.Movie;
-import app.knapp.popularmoviesappstage1.network.MovieDbUtil;
+import app.knapp.popularmoviesapp.R;
+import app.knapp.popularmoviesapp.model.Movie;
+import app.knapp.popularmoviesapp.network.MovieDbUtil;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdapterViewHolder>{
     private static final String TAG = "MoviesAdapter";

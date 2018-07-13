@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1.model;
+package app.knapp.popularmoviesapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

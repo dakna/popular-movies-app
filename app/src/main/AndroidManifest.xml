@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.knapp.popularmoviesappstage1">
+    package="app.knapp.popularmoviesapp">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -12,15 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
-        <activity android:name=".MovieListActivity">
+        <activity android:name="app.knapp.popularmoviesapp.MovieListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MovieDetailActivity"
-            android:parentActivityName=".MovieListActivity">
+        <activity android:name="app.knapp.popularmoviesapp.MovieDetailActivity"
+            android:parentActivityName="app.knapp.popularmoviesapp.MovieListActivity">
 
         </activity>
     </application>

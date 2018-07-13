@@ -1,4 +1,4 @@
-package app.knapp.popularmoviesappstage1;
+package app.knapp.popularmoviesapp;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -21,11 +21,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import app.knapp.popularmoviesappstage1.model.Movie;
-import app.knapp.popularmoviesappstage1.network.MovieListDbResponse;
-import app.knapp.popularmoviesappstage1.network.MovieDbService;
-import app.knapp.popularmoviesappstage1.network.MovieDbUtil;
-import app.knapp.popularmoviesappstage1.ui.MoviesAdapter;
+import app.knapp.popularmoviesapp.model.Movie;
+import app.knapp.popularmoviesapp.network.MovieListDbResponse;
+import app.knapp.popularmoviesapp.network.MovieDbService;
+import app.knapp.popularmoviesapp.network.MovieDbUtil;
+import app.knapp.popularmoviesapp.ui.MoviesAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
