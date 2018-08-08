@@ -14,6 +14,9 @@ public class MovieDbUtil {
     public static final String POPULAR = "popular";
     public static final String TOP_RATED = "top_rated";
 
+    public static final String YOUTUBE_URL_IMAGE_PREFIX = "https://img.youtube.com/vi/";
+    public static final String YOUTUBE_URL_IMAGE_POSTFIX = "/0.jpg";
+
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
