@@ -1,5 +1,7 @@
 package app.knapp.popularmoviesapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -151,15 +153,16 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
 
     @Override
     public void onVideoSelected(MovieVideo video) {
-        Log.d(TAG, "onVideoSelected: ");
-        // create Intent with parcelable movie object and start it
-/*
-        Intent detailsIntent = new Intent(this, MovieDetailActivity.class);
-        detailsIntent.putExtra("movie", movie);
-        startActivity(detailsIntent);
-*/
 
         Log.d(TAG, "onVideoSelected: video key " + video.getKey());
+
+        String URL = MovieDbUtil.YOUTUBE_URL + video.getKey();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(URL));
+        startActivity(intent);
+
+
 
     }
 }

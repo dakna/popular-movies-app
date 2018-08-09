@@ -17,6 +17,8 @@ public class MovieDbUtil {
     public static final String YOUTUBE_URL_IMAGE_PREFIX = "https://img.youtube.com/vi/";
     public static final String YOUTUBE_URL_IMAGE_POSTFIX = "/0.jpg";
 
+    public static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
+
     public static boolean isConnected(Context context) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

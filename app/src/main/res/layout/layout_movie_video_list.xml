@@ -16,4 +16,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:contentDescription="@string/video_poster_description"/>
 
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:src="@drawable/youtube_play"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </android.support.constraint.ConstraintLayout>
