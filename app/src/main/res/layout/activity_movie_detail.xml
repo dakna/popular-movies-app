@@ -171,6 +171,30 @@
                 app:layout_constraintEnd_toStartOf="@id/guideline2"
                 />
 
+            <TextView
+                android:id="@+id/tvReviewLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/label_reviews"
+                app:layout_constraintTop_toBottomOf="@id/rvVideoList"
+                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintEnd_toStartOf="@id/guideline2"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-smallcaps"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvReviewList"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@id/tvReviewLabel"
+                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintEnd_toStartOf="@id/guideline2"
+                />
+
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 

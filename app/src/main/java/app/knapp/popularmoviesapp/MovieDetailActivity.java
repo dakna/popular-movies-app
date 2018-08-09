@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -22,10 +23,13 @@ import java.util.Date;
 import java.util.List;
 
 import app.knapp.popularmoviesapp.model.Movie;
+import app.knapp.popularmoviesapp.model.MovieReview;
 import app.knapp.popularmoviesapp.model.MovieVideo;
 import app.knapp.popularmoviesapp.network.MovieDbService;
 import app.knapp.popularmoviesapp.network.MovieDbUtil;
+import app.knapp.popularmoviesapp.network.MovieReviewsDbResponse;
 import app.knapp.popularmoviesapp.network.MovieVideosDbResponse;
+import app.knapp.popularmoviesapp.ui.MovieReviewsAdapter;
 import app.knapp.popularmoviesapp.ui.MovieVideosAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,6 +43,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
 
     private MovieDbService movieDbService;
     private List<MovieVideo> movieVideos;
+    private List<MovieReview> movieReviews;
     private Movie movie;
 
     private ImageView ivHeader, ivPoster;
@@ -46,7 +51,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
     private RatingBar ratingBar;
 
     private RecyclerView rvVideos;
+    private RecyclerView rvReviews;
     private MovieVideosAdapter videosAdapter;
+    private MovieReviewsAdapter reviewsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,17 +99,22 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
 
 
         rvVideos = findViewById(R.id.rvVideoList);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-        rvVideos.setLayoutManager(layoutManager);
+        LinearLayoutManager layoutManagerVideos = new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        rvVideos.setLayoutManager(layoutManagerVideos);
         //rvVideos.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.HORIZONTAL));
 
+        rvReviews = findViewById(R.id.rvReviewList);
+        LinearLayoutManager layoutManagerReviews = new LinearLayoutManager(MovieDetailActivity.this, LinearLayoutManager.VERTICAL, false);
+        rvReviews.setLayoutManager(layoutManagerReviews);
+        rvReviews.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
         if (TextUtils.isEmpty(BuildConfig.API_KEY)) {
             Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
         } else if (!MovieDbUtil.isConnected(this)) {
-            Toast.makeText(this, "Please make sure you have network access to load movie trailers", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please make sure you have network access to load movie trailers and reviews", Toast.LENGTH_LONG).show();
         } else {
             setupMovieVideoList(String.valueOf(movie.getId()));
+            setupMovieReviewList(String.valueOf(movie.getId()));
         }
     }
 
@@ -161,8 +173,50 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(URL));
         startActivity(intent);
+    }
+
+    public void setupMovieReviewList(String movieId) {
+
+        Log.d(TAG, "setupMovieReviewList: " + movieId);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(MovieDbUtil.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        movieDbService = retrofit.create(MovieDbService.class);
+        Call<MovieReviewsDbResponse> call = movieDbService.getMovieReviews(movieId, BuildConfig.API_KEY);
+
+        call.enqueue(new Callback<MovieReviewsDbResponse>() {
+            @Override
+            public void onResponse(Call<MovieReviewsDbResponse> call, Response<MovieReviewsDbResponse> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "onResponse: success " + response.body());
+                    movieReviews = response.body().getResults();
+                    Log.d(TAG, "onResponse: movie review list size " + movieReviews.size());
+
+                    if (null == reviewsAdapter) {
+
+                        reviewsAdapter = new MovieReviewsAdapter(movieReviews);
+                        rvReviews.setAdapter(reviewsAdapter);
+                        Log.d(TAG, "onResponse: adapter " + rvReviews.getAdapter());
+
+                    } else {
+                        reviewsAdapter.setReviews(movieReviews);
+
+                    }
 
 
+                } else {
+                    Toast.makeText(MovieDetailActivity.this, "Error loading movie review list: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
 
+            }
+
+            @Override
+            public void onFailure(Call<MovieReviewsDbResponse> call, Throwable t) {
+
+            }
+        });
     }
 }
