@@ -1,33 +1,50 @@
 package app.knapp.popularmoviesapp.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+@Entity(tableName = "favorite_movies")
 public class Movie implements Parcelable{
 
+
+    // only store movie ID in local sql as a check for favorite or not.
+    @PrimaryKey
+    @NonNull
     @SerializedName("id")
     private int id;
 
+    @Ignore
     @SerializedName("title")
     private String title;
 
+    @Ignore
     @SerializedName("original_title")
     private String originalTitle;
 
+    @Ignore
     @SerializedName("vote_average")
     private double voteAverage;
 
+    @Ignore
     @SerializedName("overview")
     private String overView;
 
+    @Ignore
     @SerializedName("release_date")
     private String releaseDate;
 
+    @Ignore
     @SerializedName("poster_path")
     private String posterPath;
 
+    @Ignore
     @SerializedName("backdrop_path")
     private String backdropPath;
 
