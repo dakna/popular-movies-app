@@ -118,7 +118,15 @@
                 tools:text="Movie Title"/>
 
 
-
+            <com.like.LikeButton
+                app:icon_type="heart"
+                app:icon_size="26dp"
+                android:id="@+id/btnFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="@id/guideline2"
+                app:layout_constraintTop_toTopOf="@id/tvTitle"
+                app:layout_constraintBottom_toBottomOf="@+id/ivPoster"/>
 
             <TextView
                 android:id="@+id/tvStoryLabel"
