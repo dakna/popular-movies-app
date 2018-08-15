@@ -1,7 +1,10 @@
 package app.knapp.popularmoviesapp;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,6 +24,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.knapp.popularmoviesapp.data.AppExecutors;
+import app.knapp.popularmoviesapp.data.FavoriteMovieDatabase;
 import app.knapp.popularmoviesapp.model.Movie;
 import app.knapp.popularmoviesapp.network.MovieListDbResponse;
 import app.knapp.popularmoviesapp.network.MovieDbService;
@@ -37,7 +42,10 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     private static final String TAG = "MovieListActivity";
 
     private MovieDbService movieDbService;
+    private FavoriteMovieDatabase favMovieDb;
+    private AppExecutors appExecutors;
     private List<Movie> movies;
+    private LiveData<List<Movie>> favoriteMovies;
     private MoviesAdapter moviesAdapter;
     private RecyclerView rvMovies;
     private ProgressBar progressBar;
@@ -46,6 +54,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_list);
+
+        favMovieDb = FavoriteMovieDatabase.getDatabase(getApplicationContext());
+        appExecutors = AppExecutors.getInstance();
 
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
@@ -75,6 +86,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         List<String> dropDownOptions = new ArrayList<>();
         dropDownOptions.add(getResources().getString(R.string.spinner_select_popular));
         dropDownOptions.add(getResources().getString(R.string.spinner_select_toprated));
+        dropDownOptions.add(getResources().getString(R.string.spinner_select_favorites));
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dropDownOptions);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -100,7 +112,98 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
             //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.TOP_RATED);
+        } else if ((item.equals(getResources().getString(R.string.spinner_select_favorites)))) {
+            setupFavoriteMovieList();
         }
+
+    }
+
+    private void setupFavoriteMovieList() {
+        Log.d(TAG, "setupFavoriteMovieList: ");
+        favoriteMovies = favMovieDb.favoriteMovieDao().getFavoriteMovies();
+
+        favoriteMovies.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> favMovies) {
+                Log.d(TAG, "onChanged: movies list size" + favMovies.size());
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(MovieDbUtil.BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                movieDbService = retrofit.create(MovieDbService.class);
+
+                //clear movies list before loading new items
+                movies.clear();
+                if (null != moviesAdapter) {
+                    moviesAdapter.setMovies(movies);
+                }
+
+                progressBar.setVisibility(View.VISIBLE);
+
+                // countdown for progress bar visibility
+                final int[] countDown = {favMovies.size()};
+
+                //iterate over list and get each movie via api call
+
+                for (Movie favMovie: favMovies ) {
+
+                    Call<Movie> call = movieDbService.getMovie(String.valueOf(favMovie.getId()),BuildConfig.API_KEY);
+
+                    call.enqueue(new Callback<Movie>() {
+                        @Override
+                        public void onResponse(Call<Movie> call, Response<Movie> response) {
+
+                            countDown[0]--;
+
+                            if (countDown[0] == 0) {
+                                progressBar.setVisibility(View.GONE);
+                            }
+
+
+                            if (response.isSuccessful()) {
+                                Log.d(TAG, "onResponse: success " + response.body());
+                                Movie movie = response.body();
+
+                                movies.add(movie);
+                                if (null == moviesAdapter) {
+
+                                    moviesAdapter = new MoviesAdapter(movies, MovieListActivity.this);
+                                    rvMovies.setAdapter(moviesAdapter);
+                                    Log.d(TAG, "onResponse: adapter " + rvMovies.getAdapter());
+
+                                } else {
+                                    moviesAdapter.addMovie(movie);
+                                }
+
+                                Log.d(TAG, "onResponse: movie id " + movie.getId());
+
+                            } else {
+                                Toast.makeText(MovieListActivity.this, "Error loading movie " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Movie> call, Throwable t) {
+                            progressBar.setVisibility(View.GONE);
+                            Log.e(TAG, "onFailure: ", t);
+                            Toast.makeText(MovieListActivity.this, "Error loading movie " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
+                }
+
+
+            }
+        });
+
+        //get all list of all fav movies
+
+
+
+        // add each movie to adapter
 
     }
 
