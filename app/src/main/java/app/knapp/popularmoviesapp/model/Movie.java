@@ -20,7 +20,6 @@ public class Movie implements Parcelable{
     @SerializedName("id")
     private int id;
 
-    @Ignore
     @SerializedName("title")
     private String title;
 
