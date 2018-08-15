@@ -55,4 +55,7 @@ dependencies {
 
     //Like button
     implementation 'com.github.jd-alexander:LikeButton:0.2.3'
+
+    // Stetho debug bridge
+    implementation 'com.facebook.stetho:stetho:1.5.0'
 }
