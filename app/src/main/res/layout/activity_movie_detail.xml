@@ -59,6 +59,16 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline"
                 app:layout_constraintTop_toBottomOf="@+id/ivHeader"/>
 
+            <com.like.LikeButton
+                app:icon_type="star"
+                app:icon_size="38dp"
+                app:anim_scale_factor="1.9"
+                android:id="@+id/btnFavorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@+id/ivPoster"
+                app:layout_constraintBottom_toBottomOf="@+id/ivHeader"/>
+
             <RatingBar
                 android:id="@+id/ratingBar"
                 style="?android:attr/ratingBarStyleSmall"
@@ -118,15 +128,7 @@
                 tools:text="Movie Title"/>
 
 
-            <com.like.LikeButton
-                app:icon_type="heart"
-                app:icon_size="26dp"
-                android:id="@+id/btnFavorite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="@id/guideline2"
-                app:layout_constraintTop_toTopOf="@id/tvTitle"
-                app:layout_constraintBottom_toBottomOf="@+id/ivPoster"/>
+
 
             <TextView
                 android:id="@+id/tvStoryLabel"
