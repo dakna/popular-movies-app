@@ -15,6 +15,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -22,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import app.knapp.popularmoviesapp.data.AppExecutors;
+import app.knapp.popularmoviesapp.data.FavoriteMovieDatabase;
 import app.knapp.popularmoviesapp.model.Movie;
 import app.knapp.popularmoviesapp.model.MovieReview;
 import app.knapp.popularmoviesapp.model.MovieVideo;
@@ -42,6 +46,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
     private static final String TAG = "MovieDetailActivity";
 
     private MovieDbService movieDbService;
+    private FavoriteMovieDatabase favMovieDb;
+    private AppExecutors appExecutors;
+    
     private List<MovieVideo> movieVideos;
     private List<MovieReview> movieReviews;
     private Movie movie;
@@ -54,12 +61,17 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
     private RecyclerView rvReviews;
     private MovieVideosAdapter videosAdapter;
     private MovieReviewsAdapter reviewsAdapter;
+    private LikeButton btnFavorite;
+    boolean isFavorite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
+        favMovieDb = FavoriteMovieDatabase.getDatabase(getApplicationContext());
+        appExecutors = AppExecutors.getInstance();
+        
         movie = getIntent().getParcelableExtra("movie");
         Log.d(TAG, "onCreate: movie " + movie.getTitle());
 
@@ -70,6 +82,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
         tvRelease = findViewById(R.id.tvRelease);
         tvTitle = findViewById(R.id.tvTitle);
         tvStory = findViewById(R.id.tvStory);
+        btnFavorite = findViewById(R.id.btnFavorite);
 
         Picasso.get()
                 .load(MovieDbUtil.BASE_URL_IMAGE + MovieDbUtil.POSTER_SIZE + movie.getBackdropPath())
@@ -108,6 +121,56 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
         rvReviews.setLayoutManager(layoutManagerReviews);
         rvReviews.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
 
+        // check if movie is favorite based on ID from parcelable
+        
+        appExecutors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+
+                Movie favMovie = favMovieDb.favoriteMovieDao().getFavoriteMoviebyId(movie.getId());
+                if (favMovie == null) {
+                    Log.d(TAG, "run: movie id " + movie.getId() + " is NOT a favorite");
+                    isFavorite = false;
+
+                } else {
+                    Log.d(TAG, "run: movie id " + movie.getId() + " IS a favorite");
+                    isFavorite = true;
+                }
+                btnFavorite.setLiked(isFavorite);
+
+            }
+        });
+
+        // listen to like button
+        btnFavorite.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(LikeButton likeButton) {
+                Log.d(TAG, "liked: ");
+
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        favMovieDb.favoriteMovieDao().insertFavoriteMovie(movie);
+                        Log.d(TAG, "run: saved movie id " + movie.getId() + " as favorite");
+                    }
+                });
+            }
+
+            @Override
+            public void unLiked(LikeButton likeButton) {
+                Log.d(TAG, "unLiked: ");
+
+                AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        favMovieDb.favoriteMovieDao().deleteFavoriteMovie(movie);
+                        Log.d(TAG, "run: delete movie id " + movie.getId() + " from favorites");
+                    }
+                });
+
+            }
+        });
+        
         if (TextUtils.isEmpty(BuildConfig.API_KEY)) {
             Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
         } else if (!MovieDbUtil.isConnected(this)) {

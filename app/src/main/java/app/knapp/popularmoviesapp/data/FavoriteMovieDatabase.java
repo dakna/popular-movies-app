@@ -17,7 +17,8 @@ public abstract class FavoriteMovieDatabase extends RoomDatabase {
 
     public abstract FavoriteMovieDao favoriteMovieDao();
 
-    static FavoriteMovieDatabase getDatabase(final Context context) {
+    public static FavoriteMovieDatabase getDatabase(final Context context) {
+
         if (DBINSTANCE == null) {
             synchronized(LOCK) {
                 //still null after syncing all threads?

@@ -20,7 +20,7 @@ public interface FavoriteMovieDao {
     void deleteFavoriteMovie(Movie movie);
 
     @Query("select * from favorite_movies where id = :id")
-    LiveData<Movie> getFavoriteMoviebyId(int id);
+    Movie getFavoriteMoviebyId(int id);
 
     @Query("select * from favorite_movies")
     LiveData<List<Movie>> getFavoriteMovies();
