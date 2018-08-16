@@ -311,7 +311,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     }
 
 
-    protected void onSaveInstanceState(Bundle state) {
+/*    protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
 
         // Save list state
@@ -334,5 +334,5 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         if (listState != null) {
             layoutManager.onRestoreInstanceState(listState);
         }
-    }
+    }*/
 }
