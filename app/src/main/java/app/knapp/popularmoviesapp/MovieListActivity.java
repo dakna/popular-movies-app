@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -53,6 +54,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     private RecyclerView rvMovies;
     private ProgressBar progressBar;
 
+    private RecyclerView.LayoutManager layoutManager;
+    private Parcelable listState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +71,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         progressBar.setVisibility(View.GONE);
 
         rvMovies = findViewById(R.id.rvMovieList);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, getGridSize());
+        layoutManager = new GridLayoutManager(this, getGridSize());
         rvMovies.setLayoutManager(layoutManager);
         rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
         rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.HORIZONTAL));
@@ -306,4 +310,29 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         return size;
     }
 
+
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+
+        // Save list state
+        listState = layoutManager.onSaveInstanceState();
+        state.putParcelable("RV_LIST_STATE", listState);
+    }
+
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if(state != null)
+            listState = state.getParcelable("RV_LIST_STATE");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (listState != null) {
+            layoutManager.onRestoreInstanceState(listState);
+        }
+    }
 }
