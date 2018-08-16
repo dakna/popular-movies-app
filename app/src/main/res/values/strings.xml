@@ -11,4 +11,5 @@
     <string name="label_trailer">Trailer</string>
     <string name="video_poster_description">Trailer Image</string>
     <string name="label_reviews">Reviews</string>
+    <string name="preference_list">Preference List</string>
 </resources>

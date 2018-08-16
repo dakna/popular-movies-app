@@ -2,7 +2,9 @@ package app.knapp.popularmoviesapp;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import app.knapp.popularmoviesapp.data.AppExecutors;
@@ -58,6 +61,8 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         favMovieDb = FavoriteMovieDatabase.getDatabase(getApplicationContext());
         appExecutors = AppExecutors.getInstance();
 
+        movies = new ArrayList<>();
+
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
 
@@ -71,8 +76,6 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
             Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
         } else if (!MovieDbUtil.isConnected(this)) {
             Toast.makeText(this, "Please make sure you have network access", Toast.LENGTH_LONG).show();
-        } else {
-            setupMovieList(MovieDbUtil.POPULAR);
         }
 
     }
@@ -91,7 +94,22 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dropDownOptions);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String selection = sharedPref.getString(getString(R.string.preference_list), MovieDbUtil.POPULAR);
+
         spinner.setAdapter(spinnerAdapter);
+        if (selection.equals(MovieDbUtil.POPULAR)) {
+            spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_popular)));
+
+        } else if (selection.equals(MovieDbUtil.TOP_RATED)) {
+            spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_toprated)));
+
+        } else if (selection.equals(MovieDbUtil.FAVORITE)) {
+            spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_favorites)));
+
+        }
+
         spinner.setOnItemSelectedListener(this);
 
         return true;
@@ -101,26 +119,43 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String item = parent.getItemAtPosition(position).toString();
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         Log.d(TAG, "onItemSelected: item " + item);
 
         if (item.equals(getResources().getString(R.string.spinner_select_popular))) {
+            editor.putString(getString(R.string.preference_list), MovieDbUtil.POPULAR);
+            editor.commit();
 
             //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.POPULAR);
 
         } else if ((item.equals(getResources().getString(R.string.spinner_select_toprated)))) {
+            editor.putString(getString(R.string.preference_list), MovieDbUtil.TOP_RATED);
+            editor.commit();
 
             //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.TOP_RATED);
         } else if ((item.equals(getResources().getString(R.string.spinner_select_favorites)))) {
+            editor.putString(getString(R.string.preference_list), MovieDbUtil.FAVORITE );
+            editor.commit();
+
             setupFavoriteMovieList();
         }
 
     }
 
     private void setupFavoriteMovieList() {
-        Log.d(TAG, "setupFavoriteMovieList: ");
+        Log.d(TAG, "setupFavoriteMovieList: movies list size " + movies.size());
         favoriteMovies = favMovieDb.favoriteMovieDao().getFavoriteMovies();
+
+        //clear movies list before loading new items
+        if (null != movies ) movies.clear();
+        if (null != moviesAdapter) {
+            moviesAdapter.setMovies(movies);
+        }
+
 
         favoriteMovies.observe(this, new Observer<List<Movie>>() {
             @Override
@@ -133,11 +168,6 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
                         .build();
                 movieDbService = retrofit.create(MovieDbService.class);
 
-                //clear movies list before loading new items
-                movies.clear();
-                if (null != moviesAdapter) {
-                    moviesAdapter.setMovies(movies);
-                }
 
                 progressBar.setVisibility(View.VISIBLE);
 
@@ -156,24 +186,17 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
                             countDown[0]--;
 
-                            if (countDown[0] == 0) {
-                                progressBar.setVisibility(View.GONE);
-                            }
-
-
                             if (response.isSuccessful()) {
                                 Log.d(TAG, "onResponse: success " + response.body());
                                 Movie movie = response.body();
 
                                 movies.add(movie);
-                                if (null == moviesAdapter) {
 
+                                if (countDown[0] == 0) {
+                                    progressBar.setVisibility(View.GONE);
                                     moviesAdapter = new MoviesAdapter(movies, MovieListActivity.this);
                                     rvMovies.setAdapter(moviesAdapter);
                                     Log.d(TAG, "onResponse: adapter " + rvMovies.getAdapter());
-
-                                } else {
-                                    moviesAdapter.addMovie(movie);
                                 }
 
                                 Log.d(TAG, "onResponse: movie id " + movie.getId());
@@ -198,12 +221,6 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
             }
         });
-
-        //get all list of all fav movies
-
-
-
-        // add each movie to adapter
 
     }
 
