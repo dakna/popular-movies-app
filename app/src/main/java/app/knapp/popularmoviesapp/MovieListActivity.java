@@ -122,6 +122,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        // change to options menu, show list name in app header bar instead of movies
+
         String item = parent.getItemAtPosition(position).toString();
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
