@@ -127,6 +127,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
             @Override
             public void run() {
 
+
+                // todo: use view model, not dao directly. chain from viewmodel to repository to dao
                 Movie favMovie = favMovieDb.favoriteMovieDao().getFavoriteMoviebyId(movie.getId());
                 if (favMovie == null) {
                     Log.d(TAG, "run: movie id " + movie.getId() + " is NOT a favorite");
@@ -147,6 +149,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
             public void liked(LikeButton likeButton) {
                 Log.d(TAG, "liked: ");
 
+                // todo: use view model, not dao directly. chain from viewmodel to repository to dao
                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
@@ -160,6 +163,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
             public void unLiked(LikeButton likeButton) {
                 Log.d(TAG, "unLiked: ");
 
+                // todo: use view model, not dao directly. chain from viewmodel to repository to dao
                 AppExecutors.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {

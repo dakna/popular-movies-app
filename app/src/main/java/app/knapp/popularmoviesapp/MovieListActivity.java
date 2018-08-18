@@ -1,7 +1,7 @@
 package app.knapp.popularmoviesapp;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +30,7 @@ import java.util.List;
 
 import app.knapp.popularmoviesapp.data.AppExecutors;
 import app.knapp.popularmoviesapp.data.FavoriteMovieDatabase;
+import app.knapp.popularmoviesapp.data.MovieListViewModel;
 import app.knapp.popularmoviesapp.model.Movie;
 import app.knapp.popularmoviesapp.network.MovieListDbResponse;
 import app.knapp.popularmoviesapp.network.MovieDbService;
@@ -48,14 +49,18 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     private MovieDbService movieDbService;
     private FavoriteMovieDatabase favMovieDb;
     private AppExecutors appExecutors;
+
+    private MovieListViewModel viewModel;
+
+
     private List<Movie> movies;
-    private LiveData<List<Movie>> favoriteMovies;
+    private List<Movie> favoriteMovies;
     private MoviesAdapter moviesAdapter;
+    private MoviesAdapter favoriteMoviesAdapter;
     private RecyclerView rvMovies;
     private ProgressBar progressBar;
 
     private RecyclerView.LayoutManager layoutManager;
-    private Parcelable listState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +71,12 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         appExecutors = AppExecutors.getInstance();
 
         movies = new ArrayList<>();
+        favoriteMovies = new ArrayList<>();
 
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
 
-        rvMovies = findViewById(R.id.rvMovieList);
-        layoutManager = new GridLayoutManager(this, getGridSize());
-        rvMovies.setLayoutManager(layoutManager);
-        rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
-        rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.HORIZONTAL));
+
 
         if (TextUtils.isEmpty(BuildConfig.API_KEY)) {
             Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
@@ -82,7 +84,103 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
             Toast.makeText(this, "Please make sure you have network access", Toast.LENGTH_LONG).show();
         }
 
+        initRecyclerView();
+        initViewModel();
+
     }
+
+    private void initRecyclerView() {
+        rvMovies = findViewById(R.id.rvMovieList);
+        layoutManager = new GridLayoutManager(this, getGridSize());
+        rvMovies.setLayoutManager(layoutManager);
+        rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.VERTICAL));
+        rvMovies.addItemDecoration(new DividerItemDecoration(this, GridLayoutManager.HORIZONTAL));
+
+        moviesAdapter = new MoviesAdapter(movies, MovieListActivity.this);
+        favoriteMoviesAdapter = new MoviesAdapter(favoriteMovies, MovieListActivity.this);
+        Log.d(TAG, "initRecyclerView: adapter " + rvMovies.getAdapter());
+
+    }
+
+    private void initViewModel() {
+
+        viewModel = ViewModelProviders.of(this).get(MovieListViewModel.class);
+        viewModel.getFavoriteMovies().observe(this, new Observer<List<Movie>>() {
+
+            @Override
+            public void onChanged(@Nullable List<Movie> favMovies) {
+
+                Log.d(TAG, "onChanged: movies list size favMovies " + favMovies.size());
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(MovieDbUtil.BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                movieDbService = retrofit.create(MovieDbService.class);
+
+                favoriteMovies.clear();
+                favoriteMoviesAdapter.setMovies(favoriteMovies);
+
+                if (favMovies.size() > 0 ) {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+
+                // countdown for progress bar visibility
+                final int[] countDown = {favMovies.size()};
+
+                //iterate over list and get each movie via api call
+
+                for (Movie favMovie: favMovies ) {
+
+                    Call<Movie> call = movieDbService.getMovie(String.valueOf(favMovie.getId()),BuildConfig.API_KEY);
+
+                    call.enqueue(new Callback<Movie>() {
+                        @Override
+                        public void onResponse(Call<Movie> call, Response<Movie> response) {
+
+                            countDown[0]--;
+
+                            if (response.isSuccessful()) {
+                                //Log.d(TAG, "onResponse: success " + response.body());
+                                Movie movie = response.body();
+
+                                Log.d(TAG, "onResponse: Movie " + movie);
+                                favoriteMovies.add(movie);
+
+                                if (countDown[0] == 0) {
+                                    progressBar.setVisibility(View.GONE);
+                                    // setup new adapter to clear old list
+                                    favoriteMoviesAdapter = new MoviesAdapter(favoriteMovies, MovieListActivity.this);
+                                    Log.d(TAG, "onResponse: favoriteMovies list size " + favoriteMovies.size());
+                                    Log.d(TAG, "onResponse: rv getAdapter list size " + rvMovies.getAdapter().getItemCount());
+                                    Log.d(TAG, "onResponse: favMovie adapter list size " + favoriteMoviesAdapter.getItemCount());
+
+                                }
+
+                                Log.d(TAG, "onResponse: movie id " + movie.getId());
+
+                            } else {
+                                Toast.makeText(MovieListActivity.this, "Error loading movie " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Movie> call, Throwable t) {
+                            progressBar.setVisibility(View.GONE);
+                            Log.e(TAG, "onFailure: ", t);
+                            Toast.makeText(MovieListActivity.this, "Error loading movie " + t.getMessage(), Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
+                }
+
+            }
+        });
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -135,99 +233,27 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
             editor.putString(getString(R.string.preference_list), MovieDbUtil.POPULAR);
             editor.commit();
 
-            //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.POPULAR);
 
         } else if ((item.equals(getResources().getString(R.string.spinner_select_toprated)))) {
             editor.putString(getString(R.string.preference_list), MovieDbUtil.TOP_RATED);
             editor.commit();
 
-            //Toast.makeText(this, "item selected " + item, Toast.LENGTH_SHORT).show();
             setupMovieList(MovieDbUtil.TOP_RATED);
         } else if ((item.equals(getResources().getString(R.string.spinner_select_favorites)))) {
             editor.putString(getString(R.string.preference_list), MovieDbUtil.FAVORITE );
             editor.commit();
-
+            Log.d(TAG, "onItemSelected: favorites");
             setupFavoriteMovieList();
         }
 
     }
 
     private void setupFavoriteMovieList() {
-        Log.d(TAG, "setupFavoriteMovieList: movies list size " + movies.size());
-        favoriteMovies = favMovieDb.favoriteMovieDao().getFavoriteMovies();
+        Log.d(TAG, "setupFavoriteMovieList: movies list size " + favoriteMovies.size());
 
-        //clear movies list before loading new items
-        if (null != movies ) movies.clear();
-        if (null != moviesAdapter) {
-            moviesAdapter.setMovies(movies);
-        }
-
-
-        favoriteMovies.observe(this, new Observer<List<Movie>>() {
-            @Override
-            public void onChanged(@Nullable List<Movie> favMovies) {
-                Log.d(TAG, "onChanged: movies list size" + favMovies.size());
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(MovieDbUtil.BASE_URL)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-                movieDbService = retrofit.create(MovieDbService.class);
-
-
-                progressBar.setVisibility(View.VISIBLE);
-
-                // countdown for progress bar visibility
-                final int[] countDown = {favMovies.size()};
-
-                //iterate over list and get each movie via api call
-
-                for (Movie favMovie: favMovies ) {
-
-                    Call<Movie> call = movieDbService.getMovie(String.valueOf(favMovie.getId()),BuildConfig.API_KEY);
-
-                    call.enqueue(new Callback<Movie>() {
-                        @Override
-                        public void onResponse(Call<Movie> call, Response<Movie> response) {
-
-                            countDown[0]--;
-
-                            if (response.isSuccessful()) {
-                                Log.d(TAG, "onResponse: success " + response.body());
-                                Movie movie = response.body();
-
-                                movies.add(movie);
-
-                                if (countDown[0] == 0) {
-                                    progressBar.setVisibility(View.GONE);
-                                    moviesAdapter = new MoviesAdapter(movies, MovieListActivity.this);
-                                    rvMovies.setAdapter(moviesAdapter);
-                                    Log.d(TAG, "onResponse: adapter " + rvMovies.getAdapter());
-                                }
-
-                                Log.d(TAG, "onResponse: movie id " + movie.getId());
-
-                            } else {
-                                Toast.makeText(MovieListActivity.this, "Error loading movie " + response.code(), Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<Movie> call, Throwable t) {
-                            progressBar.setVisibility(View.GONE);
-                            Log.e(TAG, "onFailure: ", t);
-                            Toast.makeText(MovieListActivity.this, "Error loading movie " + t.getMessage(), Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-
-                }
-
-
-            }
-        });
+        //all changes should have been done by now in view model and its observer
+        rvMovies.setAdapter(favoriteMoviesAdapter);
 
     }
 
@@ -239,6 +265,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     public void setupMovieList(String list) {
 
         Log.d(TAG, "setupMovieList: " + list);
+
+        rvMovies.setAdapter(moviesAdapter);
+        //moviesAdapter.setMovies(movies);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(MovieDbUtil.BASE_URL)
@@ -260,17 +289,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
                     Log.d(TAG, "onResponse: success " + response.body());
                     movies = response.body().getResults();
                     Log.d(TAG, "onResponse: movie list size " + movies.size());
-                    if (null == moviesAdapter) {
-
-                        moviesAdapter = new MoviesAdapter(movies, MovieListActivity.this);
-                        rvMovies.setAdapter(moviesAdapter);
-                        Log.d(TAG, "onResponse: adapter " + rvMovies.getAdapter());
-
-                    } else {
-                        moviesAdapter.setMovies(movies);
-
-                    }
-
+                    moviesAdapter.setMovies(movies);
                 } else {
                     Toast.makeText(MovieListActivity.this, "Error loading movie list: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -313,29 +332,4 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         return size;
     }
 
-
-/*    protected void onSaveInstanceState(Bundle state) {
-        super.onSaveInstanceState(state);
-
-        // Save list state
-        listState = layoutManager.onSaveInstanceState();
-        state.putParcelable("RV_LIST_STATE", listState);
-    }
-
-    protected void onRestoreInstanceState(Bundle state) {
-        super.onRestoreInstanceState(state);
-
-        // Retrieve list state and list/item positions
-        if(state != null)
-            listState = state.getParcelable("RV_LIST_STATE");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (listState != null) {
-            layoutManager.onRestoreInstanceState(listState);
-        }
-    }*/
 }
