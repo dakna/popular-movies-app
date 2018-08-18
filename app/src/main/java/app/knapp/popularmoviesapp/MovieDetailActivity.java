@@ -1,5 +1,6 @@
 package app.knapp.popularmoviesapp;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import java.util.List;
 
 import app.knapp.popularmoviesapp.data.AppExecutors;
 import app.knapp.popularmoviesapp.data.FavoriteMovieDatabase;
+import app.knapp.popularmoviesapp.data.MovieDetailViewModel;
 import app.knapp.popularmoviesapp.model.Movie;
 import app.knapp.popularmoviesapp.model.MovieReview;
 import app.knapp.popularmoviesapp.model.MovieVideo;
@@ -48,6 +50,8 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
     private MovieDbService movieDbService;
     private FavoriteMovieDatabase favMovieDb;
     private AppExecutors appExecutors;
+    private MovieDetailViewModel viewModel;
+
     
     private List<MovieVideo> movieVideos;
     private List<MovieReview> movieReviews;
@@ -71,6 +75,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
 
         favMovieDb = FavoriteMovieDatabase.getDatabase(getApplicationContext());
         appExecutors = AppExecutors.getInstance();
+        viewModel = ViewModelProviders.of(this).get(MovieDetailViewModel.class);
         
         movie = getIntent().getParcelableExtra("movie");
         Log.d(TAG, "onCreate: movie " + movie.getTitle());
@@ -147,31 +152,16 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
         btnFavorite.setOnLikeListener(new OnLikeListener() {
             @Override
             public void liked(LikeButton likeButton) {
-                Log.d(TAG, "liked: ");
 
-                // todo: use view model, not dao directly. chain from viewmodel to repository to dao
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        favMovieDb.favoriteMovieDao().insertFavoriteMovie(movie);
-                        Log.d(TAG, "run: saved movie id " + movie.getId() + " as favorite");
-                    }
-                });
+                Log.d(TAG, "liked: saved movie id " + movie.getId() + " as favorite");
+                viewModel.insertFavoriteMovie(movie);
             }
 
             @Override
             public void unLiked(LikeButton likeButton) {
-                Log.d(TAG, "unLiked: ");
 
-                // todo: use view model, not dao directly. chain from viewmodel to repository to dao
-                AppExecutors.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        favMovieDb.favoriteMovieDao().deleteFavoriteMovie(movie);
-                        Log.d(TAG, "run: delete movie id " + movie.getId() + " from favorites");
-                    }
-                });
-
+                Log.d(TAG, "unLiked: delete movie id " + movie.getId() + " from favorites");
+                viewModel.deleteFavoriteMovie(movie);
             }
         });
         

@@ -34,4 +34,22 @@ public class FavoriteMovieRepository {
     public Movie getMovieById(int id) {
         return db.favoriteMovieDao().getFavoriteMoviebyId(id);
     }
+
+    public void insertFavoriteMovie(final Movie movie) {
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                db.favoriteMovieDao().insertFavoriteMovie(movie);
+            }
+        });
+    }
+
+    public void deleteFavoriteMovie(final Movie movie) {
+        executors.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                db.favoriteMovieDao().deleteFavoriteMovie(movie);
+            }
+        });
+    }
 }
