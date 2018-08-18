@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +24,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import app.knapp.popularmoviesapp.data.AppExecutors;
@@ -79,9 +77,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
 
         if (TextUtils.isEmpty(BuildConfig.API_KEY)) {
-            Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_api_key, Toast.LENGTH_LONG).show();
         } else if (!MovieDbUtil.isConnected(this)) {
-            Toast.makeText(this, "Please make sure you have network access", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_network, Toast.LENGTH_LONG).show();
         }
 
         initRecyclerView();

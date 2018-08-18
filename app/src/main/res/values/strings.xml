@@ -12,4 +12,6 @@
     <string name="video_poster_description">Trailer Image</string>
     <string name="label_reviews">Reviews</string>
     <string name="preference_list">Preference List</string>
+    <string name="no_api_key">Please enter a valid API KEY to Build Config</string>
+    <string name="no_network">Please make sure you have network access</string>
 </resources>

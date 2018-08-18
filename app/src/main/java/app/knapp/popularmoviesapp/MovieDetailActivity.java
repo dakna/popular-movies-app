@@ -166,9 +166,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieVideo
         });
         
         if (TextUtils.isEmpty(BuildConfig.API_KEY)) {
-            Toast.makeText(this, "Please enter a valid API KEY to Build Config", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_api_key, Toast.LENGTH_LONG).show();
         } else if (!MovieDbUtil.isConnected(this)) {
-            Toast.makeText(this, "Please make sure you have network access to load movie trailers and reviews", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.no_network, Toast.LENGTH_LONG).show();
         } else {
             setupMovieVideoList(String.valueOf(movie.getId()));
             setupMovieReviewList(String.valueOf(movie.getId()));
