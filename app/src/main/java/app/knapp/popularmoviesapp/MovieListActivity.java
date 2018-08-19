@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -59,6 +60,7 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
     private ProgressBar progressBar;
 
     private RecyclerView.LayoutManager layoutManager;
+    private Parcelable listState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,9 +151,12 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
                                     progressBar.setVisibility(View.GONE);
                                     // setup new adapter to clear old list
                                     favoriteMoviesAdapter = new MoviesAdapter(favoriteMovies, MovieListActivity.this);
+                                    if (listState != null) {
+                                        layoutManager.onRestoreInstanceState(listState);
+                                    }
                                     Log.d(TAG, "onResponse: favoriteMovies list size " + favoriteMovies.size());
-                                    Log.d(TAG, "onResponse: rv getAdapter list size " + rvMovies.getAdapter().getItemCount());
-                                    Log.d(TAG, "onResponse: favMovie adapter list size " + favoriteMoviesAdapter.getItemCount());
+                                    //Log.d(TAG, "onResponse: rv getAdapter list size " + rvMovies.getAdapter().getItemCount());
+                                    //Log.d(TAG, "onResponse: favMovie adapter list size " + favoriteMoviesAdapter.getItemCount());
 
                                 }
 
@@ -196,16 +201,16 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
 
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        String selection = sharedPref.getString(getString(R.string.preference_list), MovieDbUtil.POPULAR);
+        String selection = sharedPref.getString(getString(R.string.preference_list), getResources().getString(R.string.spinner_select_popular));
 
         spinner.setAdapter(spinnerAdapter);
-        if (selection.equals(MovieDbUtil.POPULAR)) {
+        if (selection.equals(getResources().getString(R.string.spinner_select_popular))) {
             spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_popular)));
 
-        } else if (selection.equals(MovieDbUtil.TOP_RATED)) {
+        } else if (selection.equals(getResources().getString(R.string.spinner_select_toprated))) {
             spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_toprated)));
 
-        } else if (selection.equals(MovieDbUtil.FAVORITE)) {
+        } else if (selection.equals(getResources().getString(R.string.spinner_select_favorites))) {
             spinner.setSelection(dropDownOptions.indexOf(getResources().getString(R.string.spinner_select_favorites)));
 
         }
@@ -225,21 +230,29 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
+
+        // store prev selection because of recyclerview position
+        String previousSelection = sharedPref.getString(getString(R.string.preference_list), null);
+        if (((null != previousSelection) && !(previousSelection.equals(item))) ) {
+            // different recyclerview items, discard liststate from orientation change
+            listState = null;
+        }
+
         Log.d(TAG, "onItemSelected: item " + item);
 
         if (item.equals(getResources().getString(R.string.spinner_select_popular))) {
-            editor.putString(getString(R.string.preference_list), MovieDbUtil.POPULAR);
+            editor.putString(getString(R.string.preference_list), getResources().getString(R.string.spinner_select_popular));
             editor.commit();
 
             setupMovieList(MovieDbUtil.POPULAR);
 
-        } else if ((item.equals(getResources().getString(R.string.spinner_select_toprated)))) {
-            editor.putString(getString(R.string.preference_list), MovieDbUtil.TOP_RATED);
+        } else if (item.equals(getResources().getString(R.string.spinner_select_toprated))) {
+            editor.putString(getString(R.string.preference_list), getResources().getString(R.string.spinner_select_toprated));
             editor.commit();
 
             setupMovieList(MovieDbUtil.TOP_RATED);
-        } else if ((item.equals(getResources().getString(R.string.spinner_select_favorites)))) {
-            editor.putString(getString(R.string.preference_list), MovieDbUtil.FAVORITE );
+        } else if (item.equals(getResources().getString(R.string.spinner_select_favorites))) {
+            editor.putString(getString(R.string.preference_list), getResources().getString(R.string.spinner_select_favorites));
             editor.commit();
             Log.d(TAG, "onItemSelected: favorites");
             setupFavoriteMovieList();
@@ -288,6 +301,9 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
                     movies = response.body().getResults();
                     Log.d(TAG, "onResponse: movie list size " + movies.size());
                     moviesAdapter.setMovies(movies);
+                    if (listState != null) {
+                        layoutManager.onRestoreInstanceState(listState);
+                    }
                 } else {
                     Toast.makeText(MovieListActivity.this, "Error loading movie list: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -330,4 +346,28 @@ public class MovieListActivity extends AppCompatActivity implements MoviesAdapte
         return size;
     }
 
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+
+        // Save list state
+        listState = layoutManager.onSaveInstanceState();
+        state.putParcelable("RV_LIST_STATE", listState);
+    }
+
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if(state != null) {
+            listState = state.getParcelable("RV_LIST_STATE");
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+    }
 }
